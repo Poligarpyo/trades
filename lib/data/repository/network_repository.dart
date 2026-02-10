@@ -78,6 +78,6 @@ class NetworkRepository extends _$NetworkRepository {
     // Logout AND show snackbar (once)
     await ref
         .read(authControllerProvider.notifier)
-        .logout(message: 'Session expired. You have been logged out.3333');
+        .logout(message: 'Session expired. You have been logged out.');
   }
 }

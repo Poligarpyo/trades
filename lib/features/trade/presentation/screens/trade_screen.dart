@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../common/app_bar_gone.dart';
+import '../../../../core/provider/connectivity_provider.dart';
 import '../../../authentication/domain/auth/auth_controller.dart';
 import '../../domain/entities/trade.dart';
 import '../providers/trade_providers.dart';
+import '../widgets/OfflineCard.dart';
+import '../widgets/TradeShimmer.dart';
+import '../widgets/buildContent.dart';
 import '../widgets/card.dart';
 
 class TradeScreen extends ConsumerStatefulWidget {
@@ -18,12 +22,14 @@ class TradeScreen extends ConsumerStatefulWidget {
 class _TradeScreenState extends ConsumerState<TradeScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+
   bool _isWaitingToLoadMore = false;
   Timer? _loadMoreTimer;
 
   @override
   void initState() {
     super.initState();
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -43,6 +49,7 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
   void dispose() {
     _loadMoreTimer?.cancel();
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -50,125 +57,35 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(tradeProvider);
     final notifier = ref.watch(tradeProvider.notifier);
-    if (state.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final connectivityAsync = ref.watch(connectivityStatusProvider);
 
-    if (state.error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
-              const SizedBox(height: 16),
-              Text(
-                state.error!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.refresh),
-                label: const Text("Retry"),
-                onPressed: () => ref.read(tradeProvider.notifier).fetch(limit: 10),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: EmptyAppBar(),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await notifier.refresh();
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Builder(
-              builder: (context) {
-                if (state.error != null) {
-                  return ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 100),
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.redAccent,
-                      ),
-                      const SizedBox(height: 16),
-                      Center(
-                        child: Text(
-                          state.error!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            notifier.refresh();
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ),
-                    ],
-                  );
-                }
+    ref.listen(connectivityStatusProvider, (_, next) {
+      next.whenData((isOnline) {
+        if (isOnline) {
+          ref.read(tradeProvider.notifier).refresh();
+        }
+      });
+    });
 
-                /// 🟡 INITIAL LOADING (no data yet)
-                if (state.isLoading && state.trade.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        'Total Profit: ${notifier.totalProfit.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        itemCount:
-                            state.trade.length + (state.isLoading ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == state.trade.length) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-                          final trade = state.trade[index];
-                          return TradeCard(trade: trade);
-                        },
-                      ),
-                    )
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
+    return connectivityAsync.when(
+      loading: () => buildContent(
+        state,
+        notifier,
+        isOnline: true,
+        scrollController: _scrollController,
+      ),
+      error: (_, __) => buildContent(
+        state,
+        notifier,
+        isOnline: false,
+        scrollController: _scrollController,
+      ),
+      data: (isOnline) => buildContent(
+        state,
+        notifier,
+        isOnline: isOnline,
+        scrollController: _scrollController,
       ),
     );
   }
-
 }

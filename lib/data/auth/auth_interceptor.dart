@@ -21,7 +21,7 @@ class AuthInterceptor extends Interceptor {
       _isLoggingOut = true;
       await ref
           .read(authControllerProvider.notifier)
-          .logout(message: 'Session expired. You have been logged out.222');
+          .logout(message: 'Session expired. You have been logged out.');
     }
 
     return handler.next(err);

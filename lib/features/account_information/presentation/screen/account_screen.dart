@@ -34,8 +34,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        centerTitle: true,
+        title: const Text(
+          'Account',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: false,
         elevation: 0,
+        backgroundColor: Colors.white,
       ),
       body: state.when(
         loading: () => const AccountLoading(),

@@ -51,16 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Dashboard'),
-      //   leading: Builder(
-      //     builder: (context) => IconButton(
-      //       icon: const Icon(Icons.menu),
-      //       onPressed: () => Scaffold.of(context).openDrawer(),
-      //     ),
-      //   ),
-      // ),
-
+      
       /// 🏠 DASHBOARD BODY
       body: IndexedStack(index: _selectedIndex, children: _screens),
       
@@ -68,7 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trades'),
+          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Trades'),
           BottomNavigationBarItem(
             icon: Stack(
               clipBehavior: Clip.none,
