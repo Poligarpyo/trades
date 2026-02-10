@@ -27,17 +27,17 @@ class TradeNotifier extends StateNotifier<PaginatedTradeState> {
       calculateTotalProfit(state.trade);
 
   Future<void> loadInitial({required String search}) async {
-    await _fetch(limit: state.limit, search: search);
+    await fetch(limit: state.limit, search: search);
   }
 
   Future<void> loadMore({required String search}) async {
     if (state.isLoading || !state.hasMore) return;
 
     final newLimit = state.limit + 10;
-    await _fetch(limit: newLimit, search: search);
+    await fetch(limit: newLimit, search: search);
   }
 
-  Future<void> _fetch({required int limit, String search = ''}) async {
+  Future<void> fetch({required int limit, String search = ''}) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
@@ -60,6 +60,6 @@ class TradeNotifier extends StateNotifier<PaginatedTradeState> {
 
   Future<void> refresh() async {
     state = PaginatedTradeState(trade: []); // reset state
-    await _fetch(limit: 10);
+    await fetch(limit: 10);
   }
 }

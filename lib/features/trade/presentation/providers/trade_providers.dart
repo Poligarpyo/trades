@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/provider/connectivity_provider.dart';
 import '../../../../core/storage/auth_local_datasource_provider.dart';
 import '../../../../data/repository/network_repository.dart';
 import '../../data/repositories/trade_repository_impl.dart';
@@ -27,13 +28,17 @@ final tradeRemoteSourceProvider = Provider<TradeRemoteSource>((ref) {
       authLocalDataSource: authLocal,
       networkRepository: networkRepository);
 });
-
 final tradeRepositoryProvider = Provider<TradeRepository>((ref) {
+  final connectivity =
+      ref.watch(connectivityProvider);  
+  final remoteSource =
+      ref.watch(tradeRemoteSourceProvider); // ✅ Access remote API source
+
   return TradeRepositoryImpl(
-    remoteDataSource: ref.read(tradeRemoteSourceProvider),
+    remoteDataSource: remoteSource,
+    connectivity: connectivity, // ✅ Pass connectivity into your repository
   );
 });
-
 final getTradeUseCaseProvider = Provider<GetTradeUseCase>((ref) {
   final repository = ref.read(tradeRepositoryProvider);
   return GetTradeUseCase(repository);

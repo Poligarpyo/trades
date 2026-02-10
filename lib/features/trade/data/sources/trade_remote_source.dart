@@ -5,6 +5,7 @@ import '../../../../../constants/endpoints.dart';
 import '../../../../core/storage/auth_local_datasource.dart';
 import '../../../../data/app/app_initializer.dart';
 import '../../../../data/repository/network_repository.dart';
+import '../../../../exceptions/network_exceptions.dart';
 import '../model/trade_model.dart';
 
 class TradeRemoteSource {
@@ -27,10 +28,9 @@ class TradeRemoteSource {
       final token = authLocalDataSource.getToken();
 
       if (login == null || token == null) {
-        throw Exception('❌ No login or token found in local storage');
+        throw TokenExpiredException();
       }
 
-      // ✅ Use the NetworkRepository Dio instance (with interceptors)
       final Response response = await networkRepository.state.post(
         '${Endpoints.peanutTrade}',
         data: {
@@ -46,10 +46,21 @@ class TradeRemoteSource {
             .toList();
       }
 
-      throw Exception('Failed to load trades');
+      throw ServerErrorException();
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.connectionTimeout ||
+          e.type == DioErrorType.receiveTimeout ||
+          e.type == DioErrorType.sendTimeout) {
+        throw NoInternetException();
+      }
+
+      if (e.response?.statusCode == 401) {
+        throw TokenExpiredException();
+      }
+
+      throw UnknownNetworkException(e.message ?? "Unknown Dio error");
     } catch (e) {
-      // If token expired, interceptor already handles logout
-      throw Exception('Error fetching trades: $e');
+      throw UnknownNetworkException(e.toString());
     }
   }
 }

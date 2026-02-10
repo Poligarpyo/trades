@@ -23,7 +23,7 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
 
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -50,7 +50,35 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(tradeProvider);
     final notifier = ref.watch(tradeProvider.notifier);
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
+    if (state.error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+              const SizedBox(height: 16),
+              Text(
+                state.error!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text("Retry"),
+                onPressed: () => ref.read(tradeProvider.notifier).fetch(limit: 10),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: EmptyAppBar(),
       body: RefreshIndicator(
@@ -142,4 +170,5 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
       ),
     );
   }
+
 }

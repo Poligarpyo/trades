@@ -2,6 +2,7 @@ lib
 ├── common
 │   ├── app_bar_gone.dart
 │   ├── app_snackbar.dart
+│   ├── connectivity_listener.dart
 │   ├── grid_item.dart
 │   ├── link_card.dart
 │   ├── logout_confimation.dart
@@ -19,6 +20,10 @@ lib
 │   ├── endpoints.dart
 │   └── strings.dart
 ├── core
+│   ├── provider
+│   │   └── connectivity_provider.dart
+│   ├── services
+│   │   └── connectivity_service.dart
 │   └── storage
 │       ├── auth_local_datasource_provider.dart
 │       └── auth_local_datasource.dart
@@ -37,6 +42,8 @@ lib
 │       ├── network_repository.dart
 │       └── network_repository.g.dart
 ├── exceptions
+│   ├── network_exceptions.dart
+│   └── no_internet_exception.dart
 ├── features
 │   ├── account_information
 │   │   ├── data
@@ -110,13 +117,26 @@ lib
 │   │       │   ├── auth_ui_model.dart
 │   │       │   ├── auth_ui_model.freezed.dart
 │   │       │   ├── auth_ui_model.g.dart
+│   │       │   ├── backup
+│   │       │   │   ├── login_screen copy.dart
+│   │       │   │   └── login_screen.dart
 │   │       │   ├── login_controller.dart
 │   │       │   ├── login_controller.g.dart
 │   │       │   └── login_screen.dart
 │   │       ├── register
 │   │       │   └── register_dialog.dart
-│   │       └── state
-│   │           └── auth_state_provider.dart
+│   │       ├── state
+│   │       │   └── auth_state_provider.dart
+│   │       └── widgets
+│   │           ├── buildBrandSection.dart
+│   │           ├── buildDivider.dart
+│   │           ├── buildLoginButton.dart
+│   │           ├── buildModernTextField.dart
+│   │           ├── buildOptionsRow.dart
+│   │           ├── buildSocialButton.dart
+│   │           ├── buildSocialLoginOptions.dart
+│   │           ├── buildWelcomeSection.dart
+│   │           └── handleLogin.dart
 │   ├── home
 │   │   └── presentation
 │   │       ├── screen
@@ -253,4 +273,4 @@ lib
     ├── context_extensions.dart
     └── url_utils.dart
 
-111 directories, 143 files
+115 directories, 159 files

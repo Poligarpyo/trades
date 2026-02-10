@@ -31,7 +31,11 @@ class AuthController extends _$AuthController {
     if (message != null) {
       final context = rootNavigatorKey.currentContext;
       if (context != null) {
-        AppSnackbar.showMessage(context, message);
+        AppSnackbar.showMessage(
+          context,
+          message,
+          duration: const Duration(seconds: 2),
+        );
       }
     }
   }

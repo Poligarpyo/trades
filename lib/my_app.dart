@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'common/app_snackbar.dart';
+import 'common/connectivity_listener.dart';
 import 'common/navigation_keys.dart';
 import 'config/theme/theme_logic.dart';
 import 'config/theme/theme_ui_model.dart';
+import 'core/provider/connectivity_provider.dart';
 import 'features/authentication/domain/auth/auth_controller.dart';
 import 'router/app_router.dart';
 
@@ -23,13 +25,7 @@ class MyApp extends ConsumerWidget {
     // Listen for logout events
     ref.listen<AuthStatus>(authControllerProvider, (previous, next) {
       if (previous == AuthStatus.authenticated &&
-          next == AuthStatus.unauthenticated) {
-        // final ctx = rootNavigatorKey.currentContext;
-        // if (ctx != null) {
-        //   AppSnackbar.showMessage(
-        //       ctx, 'Session expired. You have been logged out.');
-        // }
-      }
+          next == AuthStatus.unauthenticated) {}
     });
 
     return MaterialApp.router(
@@ -69,6 +65,9 @@ class MyApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
+      builder: (context, child) {
+        return ConnectivityListener(child: child!);
+      },
     );
   }
 }
